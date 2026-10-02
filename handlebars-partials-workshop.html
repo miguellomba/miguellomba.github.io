@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Handlebars Partials Workshop | Miguel Lomba Sánchez</title>
+<meta name="description" content="A 60-minute hands-on workshop sample: lesson plan, facilitator notes, labs with solutions, and a knowledge check.">
+<style>
+:root{--bg:#F5F7FA;--ink:#14233C;--muted:#4E5D73;--line:#D3DAE4;--accent:#0F7C86;--panel:#FFFFFF;--code:#EAF0F6;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1A2B;--ink:#E6ECF4;--muted:#A3B1C4;--line:#2A3A52;--accent:#5CC4CC;--panel:#16243A;--code:#12203A;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:1.0625rem/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{max-width:52rem;margin:0 auto;padding:0 1.5rem}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.2;margin:0 0 .6rem}
+h1{font-size:clamp(2rem,5vw,2.8rem);margin-top:2rem}
+h2{font-size:1.5rem}
+h3{font-size:1.15rem;margin-top:1.5rem}
+p{margin:0 0 1rem;max-width:64ch}
+section{padding:2rem 0;border-top:1px solid var(--line)}
+.top{padding:1rem 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.lede{font-size:1.15rem;color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1rem 2rem;margin:1.5rem 0 0}
+.facts dt{font-weight:700}
+.facts dd{margin:0;color:var(--muted);font-size:.95rem}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:700}
+.scroll{overflow-x:auto}
+pre{margin:.5rem 0 1rem;padding:1rem;background:var(--code);border:1px solid var(--line);border-radius:6px;overflow-x:auto;font:.86rem/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+details{border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:.6rem 1rem;margin:.75rem 0}
+summary{cursor:pointer;font-weight:600}
+details[open] summary{margin-bottom:.5rem}
+.note{color:var(--muted);font-size:.95rem}
+ul,ol{padding-left:1.3rem;margin:.25rem 0 1rem}
+li{margin-bottom:.3rem}
+footer{padding:2rem 0 3rem;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><a href="index.html">Back to portfolio</a></div></div>
+<main class="wrap">
+<h1>Handlebars Partials: build once, reuse everywhere</h1>
+<p class="lede">A 60-minute hands-on workshop for developers and template authors. This page is a complete teaching sample: objectives, timed agenda, facilitator notes, two labs with solutions, and a knowledge check.</p>
+<dl class="facts">
+  <div><dt>Audience</dt><dd>Developers new to partials</dd></div>
+  <div><dt>Prerequisites</dt><dd>Basic HTML; Handlebars expressions, <code>{{#if}}</code> and <code>{{#each}}</code></dd></div>
+  <div><dt>Format</dt><dd>Live or virtual, 60 minutes</dd></div>
+  <div><dt>Tools</dt><dd>Any Handlebars environment, such as the playground on handlebarsjs.com</dd></div>
+</dl>
+<p class="note" style="margin-top:1.25rem">This is an original sample written for my portfolio. It uses generic Handlebars and an invented example, and it is independent of any employer's course material.</p>
+
+<section>
+<h2>Learning objectives</h2>
+<p>By the end of the session, learners can:</p>
+<ol>
+  <li>Explain what a partial is and when to use one.</li>
+  <li>Register a partial and call it with <code>{{&gt; name}}</code>.</li>
+  <li>Pass values into a partial with hash parameters.</li>
+  <li>Wrap content with a partial block.</li>
+  <li>Define an inline partial for reuse inside a single template.</li>
+</ol>
+</section>
+
+<section>
+<h2>Agenda</h2>
+<div class="scroll"><table>
+<thead><tr><th>Time</th><th>Segment</th><th>Method</th></tr></thead>
+<tbody>
+<tr><td>0-5 min</td><td>The problem: the same markup copied into several templates</td><td>Show and discuss</td></tr>
+<tr><td>5-15 min</td><td>Concepts: what partials are, and when to use them</td><td>Live demo</td></tr>
+<tr><td>15-30 min</td><td>Lab 1: extract a card into a partial and pass parameters</td><td>Hands-on</td></tr>
+<tr><td>30-45 min</td><td>Lab 2: wrap content with a partial block</td><td>Hands-on</td></tr>
+<tr><td>45-52 min</td><td>Inline partials and best practices</td><td>Demo</td></tr>
+<tr><td>52-60 min</td><td>Knowledge check and wrap-up</td><td>Individual, then group</td></tr>
+</tbody></table></div>
+</section>
+
+<section>
+<h2>Facilitator notes</h2>
+<h3>Opening (0-5 min)</h3>
+<p>Show the same event card pasted into two templates. Ask: "A designer wants the booking line changed. How many places do you edit, and how likely are you to miss one?" Let learners name the pain before you introduce the solution.</p>
+<h3>Concepts (5-15 min)</h3>
+<p>Teach three ideas in order: a partial is a named, reusable fragment; it is called with <code>{{&gt; name}}</code>; it renders with the data of the place that calls it. Demo each with the same card. Check understanding by asking learners to predict the output before you run it.</p>
+<h3>Common mistakes to watch for</h3>
+<ul>
+  <li>Calling a partial that was never registered, which produces a "partial not found" error.</li>
+  <li>Mismatched closing tag on a partial block, such as opening <code>{{#&gt; panel}}</code> and closing <code>{{/card}}</code>.</li>
+  <li>Leaving <code>{{&gt; @partial-block}}</code> out of the partial, so the wrapped content disappears.</li>
+  <li>Relying on inherited data instead of passing parameters, which breaks when the partial is reused with a different data shape.</li>
+</ul>
+<h3>Pacing tip</h3>
+<p>Fast finishers can try the stretch task at the end of each lab. If a lab runs over, give the solution at the 10-minute mark and walk through it together instead of letting learners stay stuck.</p>
+</section>
+
+<section>
+<h2>Lab 1: extract a card into a partial</h2>
+<p><strong>Scenario.</strong> A training centre's site shows event cards on its homepage and on its listing page. Both templates contain the same markup. Sample data:</p>
+<pre><code>{
+  "events": [
+    { "title": "Intro to HTML", "date": "12 Nov", "spots": 8 },
+    { "title": "CSS Layout Lab", "date": "19 Nov", "spots": 0 }
+  ]
+}</code></pre>
+<p><strong>Starter.</strong> This block appears in both templates:</p>
+<pre><code>{{#each events}}
+  &lt;article class="card"&gt;
+    &lt;h3&gt;{{title}}&lt;/h3&gt;
+    &lt;p&gt;{{date}}&lt;/p&gt;
+    &lt;p&gt;{{#if spots}}{{spots}} places left{{else}}Fully booked{{/if}}&lt;/p&gt;
+  &lt;/article&gt;
+{{/each}}</code></pre>
+<p><strong>Task.</strong></p>
+<ol>
+  <li>Register a partial named <code>eventCard</code> containing the card markup.</li>
+  <li>Replace the card in both templates with a call to the partial.</li>
+  <li>Add a <code>showSpots</code> parameter. The homepage hides the booking line; the listing page shows it.</li>
+</ol>
+<p><strong>Stretch.</strong> Add a <code>highlight</code> parameter that adds a CSS class to featured cards.</p>
+<details><summary>Show solution</summary>
+<p>Partial, registered as <code>eventCard</code>:</p>
+<pre><code>&lt;article class="card"&gt;
+  &lt;h3&gt;{{title}}&lt;/h3&gt;
+  &lt;p&gt;{{date}}&lt;/p&gt;
+  {{#if showSpots}}
+    &lt;p&gt;{{#if spots}}{{spots}} places left{{else}}Fully booked{{/if}}&lt;/p&gt;
+  {{/if}}
+&lt;/article&gt;</code></pre>
+<p>Homepage template:</p>
+<pre><code>{{#each events}}
+  {{&gt; eventCard}}
+{{/each}}</code></pre>
+<p>Listing template:</p>
+<pre><code>{{#each events}}
+  {{&gt; eventCard showSpots=true}}
+{{/each}}</code></pre>
+<p>Debrief question: why is <code>showSpots</code> better as an explicit parameter than as a hidden rule inside the partial?</p>
+</details>
+</section>
+
+<section>
+<h2>Lab 2: wrap content with a partial block</h2>
+<p><strong>Scenario.</strong> The listing page needs the events inside a titled panel, and the same panel will wrap other content elsewhere on the site.</p>
+<p><strong>Task.</strong></p>
+<ol>
+  <li>Create a partial named <code>panel</code> that outputs a <code>section</code> with an optional heading.</li>
+  <li>Use <code>{{&gt; @partial-block}}</code> where the wrapped content should appear.</li>
+  <li>Call it from the listing template, wrapping the event cards from Lab 1.</li>
+</ol>
+<p><strong>Stretch.</strong> Add a <code>compact</code> parameter that changes the panel's CSS class.</p>
+<details><summary>Show solution</summary>
+<p>Partial, registered as <code>panel</code>:</p>
+<pre><code>&lt;section class="panel"&gt;
+  {{#if heading}}&lt;h2&gt;{{heading}}&lt;/h2&gt;{{/if}}
+  {{&gt; @partial-block}}
+&lt;/section&gt;</code></pre>
+<p>Listing template:</p>
+<pre><code>{{#&gt; panel heading="Upcoming events"}}
+  {{#each events}}
+    {{&gt; eventCard showSpots=true}}
+  {{/each}}
+{{/panel}}</code></pre>
+<p>Debrief question: what happens if you delete the <code>{{&gt; @partial-block}}</code> line, and why?</p>
+</details>
+</section>
+
+<section>
+<h2>Inline partials and best practices</h2>
+<p>When a fragment is only needed in one template, define it right there instead of registering it globally:</p>
+<pre><code>{{#*inline "badge"}}
+  &lt;span class="badge"&gt;{{label}}&lt;/span&gt;
+{{/inline}}
+
+{{&gt; badge label="New"}}
+{{&gt; badge label="Fully booked"}}</code></pre>
+<ul>
+  <li>Give each partial one clear job.</li>
+  <li>Use camelCase names, such as <code>eventCard</code>.</li>
+  <li>Pass values explicitly with hash parameters rather than relying on inherited data.</li>
+  <li>Use an inline partial for single-template reuse. Register a partial as soon as two templates need the same fragment.</li>
+</ul>
+</section>
+
+<section>
+<h2>Knowledge check</h2>
+<p>Five questions, answered individually, then discussed as a group.</p>
+<ol>
+  <li>Which syntax calls a partial named <code>eventCard</code>?
+    <details><summary>Answer</summary><code>{{&gt; eventCard}}</code></details></li>
+  <li>A partial block's partial leaves out <code>{{&gt; @partial-block}}</code>. What is rendered for the wrapped content?
+    <details><summary>Answer</summary>Nothing. The wrapped content is discarded.</details></li>
+  <li>When would you choose an inline partial over a registered one?
+    <details><summary>Answer</summary>When the fragment is only reused within a single template.</details></li>
+  <li>Why pass hash parameters instead of relying on inherited data?
+    <details><summary>Answer</summary>The partial stays self-contained and works with different data shapes, and the call shows what the partial needs.</details></li>
+  <li>Find the bug: <code>{{#&gt; panel}} ... {{/card}}</code>
+    <details><summary>Answer</summary>The closing tag must match the partial's name: <code>{{/panel}}</code>.</details></li>
+</ol>
+</section>
+
+<section>
+<h2>Why I designed it this way</h2>
+<ul>
+  <li><strong>Problem first.</strong> Learners feel the duplication before they see the fix, so the concept has a reason to exist.</li>
+  <li><strong>One idea per segment.</strong> Standard partials, then parameters, then blocks, then inline. Each lab builds on the last.</li>
+  <li><strong>Demo, then do.</strong> Every concept is shown once before learners try it themselves.</li>
+  <li><strong>Built-in recovery.</strong> Solutions, common mistakes and a pacing rule keep a mixed-ability group moving.</li>
+  <li><strong>Check before you finish.</strong> The knowledge check tests understanding of the objectives, not memory of syntax.</li>
+</ul>
+</section>
+</main>
+<footer><div class="wrap">Miguel Lomba Sánchez, Málaga, Spain. <a href="index.html">Back to portfolio</a></div></footer>
+</body>
+</html>
